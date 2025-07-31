@@ -8,11 +8,6 @@ import {
 } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
 
-export enum AdminRole {
-  ADMIN = "ADMIN",
-  SUPERADMIN = "SUPERADMIN"
-}
-
 export class CreateAdminDto {
   @ApiProperty({ example: "John Doe", description: "Admin full name" })
   @IsNotEmpty()
@@ -50,10 +45,4 @@ export class CreateAdminDto {
   @IsString()
   @MinLength(6)
   confirm_password: string;
-
-  @ApiProperty({
-    example: AdminRole.ADMIN,
-    description: "Admin roli",
-  })
-  admin_role: AdminRole;
 }
