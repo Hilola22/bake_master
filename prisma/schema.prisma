@@ -10,6 +10,32 @@ enum Role {
   INSTRUCTOR_ADMIN
 }
 
+enum PayMethod {
+  CLICK
+  PAYME
+  CASH
+  CARD
+  TRANSFER
+}
+
+enum PayStatus {
+  SUCCESSFUL
+  PENDING
+  CANCELLED
+  UNPAID
+}
+
+enum MoneyCurrency {
+  UZS
+  USD
+  OTHER
+}
+
+enum DiscountType {
+  PERCENT
+  AMOUNT
+}
+
 generator client {
   provider = "prisma-client-js"
   output   = "../generated/prisma"
@@ -38,6 +64,15 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  courses         Courses[]
+  certificates    Certificates[]
+  reviews         Reviews[]
+  completed_tasks CompletedTasks[]
+  purchases       Purchases[]
+  payment         Payment[]
+  offline_lesson  OfflineLesson[]
+  lessons_payment LessonsPayment[]
+
   @@map("users")
 }
 
@@ -63,26 +98,250 @@ model Region {
   id   Int    @id @default(autoincrement())
   name String @unique
 
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
-  districts Districts[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  districts      Districts[]
+  offline_lesson OfflineLesson[]
 
   @@map("region")
 }
 
 model Districts {
-  id        Int      @id @default(autoincrement())
-  name      String
-  regionId  Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  region    Region?  @relation(fields: [regionId], references: [id])
-  regionsId Int?
+  id             Int             @id @default(autoincrement())
+  name           String
+  regionId       Int
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  region         Region          @relation(fields: [regionId], references: [id])
+  regionsId      Int
+  offline_lesson OfflineLesson[]
 
   @@map("districts")
 }
 
 model Category {
-  id   Int    @id @default(autoincrement())
-  name String @unique
+  id              Int              @id @default(autoincrement())
+  name            String           @unique
+  course_category CourseCategory[]
+
+  @@map("category")
+}
+
+model Courses {
+  id              Int              @id @default(autoincrement())
+  instructor_id   Int
+  title           String
+  description     String
+  price           Decimal
+  video_url       String
+  thumbnail       String
+  duration        String           @db.VarChar(50)
+  access_duration String           @db.VarChar(50)
+  instructor      User?            @relation(fields: [instructorId], references: [id])
+  instructorId    Int?
+  course_category CourseCategory[]
+  certificates    Certificates[]
+  reviews         Reviews[]
+  contents        CourseContents[]
+  tips            Tips[]
+  purchases       Purchases[]
+  payment         Payment[]
+
+  @@map("courses")
+}
+
+model CourseCategory {
+  id         Int      @id @default(autoincrement())
+  courses    Courses  @relation(fields: [courseId], references: [id])
+  courseId   Int
+  category   Category @relation(fields: [categoryId], references: [id])
+  categoryId Int
+
+  @@map("course_category")
+}
+
+model Certificates {
+  id              Int      @id @default(autoincrement())
+  is_completed    Boolean  @default(false)
+  certificate_url String
+  issued_at       DateTime @default(now())
+  is_fully_paid   Boolean  @default(false)
+  user            User     @relation(fields: [userId], references: [id])
+  userId          Int
+  courses         Courses  @relation(fields: [courseId], references: [id])
+  courseId        Int
+
+  @@map("certificates")
+}
+
+model Reviews {
+  id         Int      @id @default(autoincrement())
+  rating     Int
+  comment    String
+  created_at DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id])
+  userId     Int
+  courses    Courses  @relation(fields: [courseId], references: [id])
+  courseId   Int
+
+  @@map("reviews")
+}
+
+model CourseContents {
+  id              Int              @id @default(autoincrement())
+  title           String
+  video_url       String
+  order           Int
+  task            String
+  ingredients     String
+  measurement     String
+  courses         Courses          @relation(fields: [courseId], references: [id])
+  courseId        Int
+  equipments      Equipments[]
+  completed_tasks CompletedTasks[]
+
+  @@map("course-contents")
+}
+
+model Tips {
+  id       Int     @id @default(autoincrement())
+  text     String
+  courses  Courses @relation(fields: [courseId], references: [id])
+  courseId Int
+
+  @@map("tips")
+}
+
+model Equipments {
+  id                 Int            @id @default(autoincrement())
+  name               String
+  description        String
+  course_contents    CourseContents @relation(fields: [course_contents_id], references: [id])
+  course_contents_id Int
+
+  @@map("equipments")
+}
+
+model CompletedTasks {
+  id                  Int            @id @default(autoincrement())
+  instructor_feedback String
+  message             String
+  course_contents     CourseContents @relation(fields: [course_contents_id], references: [id])
+  course_contents_id  Int
+  user                User           @relation(fields: [userId], references: [id])
+  userId              Int
+  task_images         TaskImages[]
+
+  @@map("completed_tasks")
+}
+
+model TaskImages {
+  id               Int            @id @default(autoincrement())
+  image_url        String
+  description      String
+  completedTasks   CompletedTasks @relation(fields: [completedTasksId], references: [id])
+  completedTasksId Int
+
+  @@map("task_images")
+}
+
+model Purchases {
+  id             Int       @id @default(autoincrement())
+  amount_paid    Decimal
+  payment_status PayStatus @default(UNPAID)
+  payment_date   DateTime  @default(now())
+  courses        Courses   @relation(fields: [courseId], references: [id])
+  courseId       Int
+  user           User      @relation(fields: [userId], references: [id])
+  userId         Int
+
+  @@map("purchases")
+}
+
+model Payment {
+  id             Int           @id @default(autoincrement())
+  payment_method PayMethod
+  currency       MoneyCurrency @default(UZS)
+  amount         Decimal
+  status         PayStatus
+  paid_at        DateTime      @default(now())
+  access_expires DateTime      @default(now())
+  courses        Courses       @relation(fields: [coursesId], references: [id])
+  coursesId      Int
+  user           User          @relation(fields: [userId], references: [id])
+  userId         Int
+  promocodes     Promocodes[]
+  refunds        Refunds[]
+
+  @@map("payment")
+}
+
+model Promocodes {
+  id              Int              @id @default(autoincrement())
+  code            String
+  discount_type   DiscountType
+  discount_value  Decimal
+  usage_limit     Int
+  used_count      Int
+  valid_from      DateTime         @default(now())
+  valid_to        DateTime         @default(now())
+  is_active       Boolean          @default(false)
+  payment         Payment          @relation(fields: [paymentId], references: [id])
+  paymentId       Int
+  lessons_payment LessonsPayment[]
+
+  @@map("promocodes")
+}
+
+model Refunds {
+  id              Int      @id @default(autoincrement())
+  reason          String
+  is_confirmed    Boolean  @default(false)
+  amount          Decimal
+  refunded_at     DateTime @default(now())
+  refund_deadline DateTime
+  payment         Payment  @relation(fields: [paymentId], references: [id])
+  paymentId       Int
+
+  @@map("refunds")
+}
+
+model OfflineLesson {
+  id              Int              @id @default(autoincrement())
+  title           String
+  description     String
+  location        String
+  date            DateTime
+  start_time      DateTime
+  end_time        DateTime
+  duration        String
+  price           Decimal
+  capacity        Int
+  is_full         Boolean          @default(false)
+  instructor      User             @relation(fields: [instructorId], references: [id])
+  instructorId    Int
+  region          Region           @relation(fields: [regionId], references: [id])
+  regionId        Int
+  districts       Districts        @relation(fields: [districtsId], references: [id])
+  districtsId     Int
+  lessons_payment LessonsPayment[]
+
+  @@map("offline-lesson")
+}
+
+model LessonsPayment {
+  id              Int            @id @default(autoincrement())
+  amount          Decimal
+  payment_method  PayMethod
+  paid_at         DateTime       @default(now())
+  discount_amount Decimal
+  status          PayStatus
+  User            User?          @relation(fields: [userId], references: [id])
+  userId          Int?
+  OfflineLesson   OfflineLesson? @relation(fields: [offlineLessonId], references: [id])
+  offlineLessonId Int?
+  Promocodes      Promocodes?    @relation(fields: [promocodesId], references: [id])
+  promocodesId    Int?
+
+  @@map("lesson-payment")
 }
