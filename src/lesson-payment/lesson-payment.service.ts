@@ -1,26 +1,71 @@
-import { Injectable } from '@nestjs/common';
-import { CreateLessonPaymentDto } from './dto/create-lesson-payment.dto';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { CreateLessonsPaymentDto } from './dto/create-lesson-payment.dto';
 import { UpdateLessonPaymentDto } from './dto/update-lesson-payment.dto';
 
 @Injectable()
 export class LessonPaymentService {
-  create(createLessonPaymentDto: CreateLessonPaymentDto) {
-    return 'This action adds a new lessonPayment';
+  constructor(private readonly prisma: PrismaService) {}
+
+  async create(createLessonPaymentDto: CreateLessonsPaymentDto) {
+    return await this.prisma.lessonsPayment.create({
+      data: createLessonPaymentDto,
+    });
   }
 
-  findAll() {
-    return `This action returns all lessonPayment`;
+  async findAll() {
+    return await this.prisma.lessonsPayment.findMany({
+      include: {
+        User: true,
+        OfflineLesson: true,
+        Promocodes: true,
+      },
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} lessonPayment`;
+  async findOne(id: number) {
+    const payment = await this.prisma.lessonsPayment.findUnique({
+      where: { id },
+      include: {
+        User: true,
+        OfflineLesson: true,
+        Promocodes: true,
+      },
+    });
+
+    if (!payment) {
+      throw new NotFoundException(`LessonPayment ID ${id} topilmadi`);
+    }
+
+    return payment;
   }
 
-  update(id: number, updateLessonPaymentDto: UpdateLessonPaymentDto) {
-    return `This action updates a #${id} lessonPayment`;
+  async update(id: number, updateLessonPaymentDto: UpdateLessonPaymentDto) {
+    const exists = await this.prisma.lessonsPayment.findUnique({
+      where: { id },
+    });
+
+    if (!exists) {
+      throw new NotFoundException(`LessonPayment ID ${id} mavjud emas`);
+    }
+
+    return await this.prisma.lessonsPayment.update({
+      where: { id },
+      data: updateLessonPaymentDto,
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} lessonPayment`;
+  async remove(id: number) {
+    const exists = await this.prisma.lessonsPayment.findUnique({
+      where: { id },
+    });
+
+    if (!exists) {
+      throw new NotFoundException(`LessonPayment ID ${id} mavjud emas`);
+    }
+
+    return await this.prisma.lessonsPayment.delete({
+      where: { id },
+    });
   }
 }

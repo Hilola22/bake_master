@@ -1,26 +1,73 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateOfflineLessonDto } from './dto/create-offline-lesson.dto';
 import { UpdateOfflineLessonDto } from './dto/update-offline-lesson.dto';
 
 @Injectable()
 export class OfflineLessonService {
-  create(createOfflineLessonDto: CreateOfflineLessonDto) {
-    return 'This action adds a new offlineLesson';
+  constructor(private readonly prisma: PrismaService) {}
+
+  async create(createOfflineLessonDto: CreateOfflineLessonDto) {
+    return await this.prisma.offlineLesson.create({
+      data: createOfflineLessonDto,
+    });
   }
 
-  findAll() {
-    return `This action returns all offlineLesson`;
+  async findAll() {
+    return await this.prisma.offlineLesson.findMany({
+      include: {
+        instructor: true,
+        region: true,
+        districts: true,
+        lessons_payment: true,
+      },
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} offlineLesson`;
+  async findOne(id: number) {
+    const lesson = await this.prisma.offlineLesson.findUnique({
+      where: { id },
+      include: {
+        instructor: true,
+        region: true,
+        districts: true,
+        lessons_payment: true,
+      },
+    });
+
+    if (!lesson) {
+      throw new NotFoundException(`OfflineLesson ID ${id} topilmadi`);
+    }
+
+    return lesson;
   }
 
-  update(id: number, updateOfflineLessonDto: UpdateOfflineLessonDto) {
-    return `This action updates a #${id} offlineLesson`;
+  async update(id: number, updateOfflineLessonDto: UpdateOfflineLessonDto) {
+    const exists = await this.prisma.offlineLesson.findUnique({
+      where: { id },
+    });
+
+    if (!exists) {
+      throw new NotFoundException(`OfflineLesson ID ${id} mavjud emas`);
+    }
+
+    return await this.prisma.offlineLesson.update({
+      where: { id },
+      data: updateOfflineLessonDto,
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} offlineLesson`;
+  async remove(id: number) {
+    const exists = await this.prisma.offlineLesson.findUnique({
+      where: { id },
+    });
+
+    if (!exists) {
+      throw new NotFoundException(`OfflineLesson ID ${id} mavjud emas`);
+    }
+
+    return await this.prisma.offlineLesson.delete({
+      where: { id },
+    });
   }
 }

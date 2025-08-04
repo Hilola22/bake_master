@@ -330,18 +330,18 @@ model OfflineLesson {
 }
 
 model LessonsPayment {
-  id              Int            @id @default(autoincrement())
+  id              Int           @id @default(autoincrement())
   amount          Decimal
   payment_method  PayMethod
-  paid_at         DateTime       @default(now())
+  paid_at         DateTime      @default(now())
   discount_amount Decimal
   status          PayStatus
-  User            User?          @relation(fields: [userId], references: [id])
-  userId          Int?
-  OfflineLesson   OfflineLesson? @relation(fields: [offlineLessonId], references: [id])
-  offlineLessonId Int?
-  Promocodes      Promocodes?    @relation(fields: [promocodesId], references: [id])
-  promocodesId    Int?
+  User            User          @relation(fields: [userId], references: [id])
+  userId          Int
+  OfflineLesson   OfflineLesson @relation(fields: [offlineLessonId], references: [id])
+  offlineLessonId Int
+  Promocodes      Promocodes    @relation(fields: [promocodesId], references: [id])
+  promocodesId    Int
 
   @@map("lesson-payment")
 }

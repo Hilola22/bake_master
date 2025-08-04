@@ -1,33 +1,60 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { EquipmentsService } from './equipments.service';
 import { CreateEquipmentDto } from './dto/create-equipment.dto';
 import { UpdateEquipmentDto } from './dto/update-equipment.dto';
+import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 
+@ApiTags('Jihozlar')
 @Controller('equipments')
 export class EquipmentsController {
   constructor(private readonly equipmentsService: EquipmentsService) {}
 
   @Post()
+  @ApiOperation({ summary: "Yangi jihoz qo'shish" })
+  @ApiResponse({ status: 201, description: 'Jihoz muvaffaqiyatli yaratildi.' })
+  @ApiResponse({ status: 400, description: "Noto'g'ri ma'lumot yuborildi." })
   create(@Body() createEquipmentDto: CreateEquipmentDto) {
     return this.equipmentsService.create(createEquipmentDto);
   }
 
   @Get()
+  @ApiOperation({ summary: 'Barcha jihozlarni olish' })
+  @ApiResponse({ status: 200, description: "Jihozlar ro'yxati." })
   findAll() {
     return this.equipmentsService.findAll();
   }
 
   @Get(':id')
+  @ApiOperation({ summary: "ID bo'yicha bitta jihoz olish" })
+  @ApiResponse({ status: 200, description: 'Jihoz topildi.' })
+  @ApiResponse({ status: 404, description: 'Jihoz topilmadi.' })
   findOne(@Param('id') id: string) {
     return this.equipmentsService.findOne(+id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateEquipmentDto: UpdateEquipmentDto) {
+  @ApiOperation({ summary: "Jihoz ma'lumotlarini yangilash" })
+  @ApiResponse({ status: 200, description: 'Jihoz muvaffaqiyatli yangilandi.' })
+  @ApiResponse({ status: 404, description: 'Jihoz topilmadi.' })
+  update(
+    @Param('id') id: string,
+    @Body() updateEquipmentDto: UpdateEquipmentDto,
+  ) {
     return this.equipmentsService.update(+id, updateEquipmentDto);
   }
 
   @Delete(':id')
+  @ApiOperation({ summary: "Jihozni o'chirish" })
+  @ApiResponse({ status: 200, description: "Jihoz muvaffaqiyatli o'chirildi." })
+  @ApiResponse({ status: 404, description: 'Jihoz topilmadi.' })
   remove(@Param('id') id: string) {
     return this.equipmentsService.remove(+id);
   }
