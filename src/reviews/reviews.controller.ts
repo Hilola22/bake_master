@@ -6,12 +6,14 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { ReviewsService } from './reviews.service';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
 
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
+import { SelfGuard, UserAccessTokenGuard } from '../common/guards';
 
 @ApiTags('Sharhlar')
 @Controller('reviews')
@@ -32,6 +34,7 @@ export class ReviewsController {
     return this.reviewsService.findAll();
   }
 
+  @UseGuards(UserAccessTokenGuard, SelfGuard)
   @Get(':id')
   @ApiOperation({ summary: "ID bo'yicha sharhni olish" })
   @ApiParam({ name: 'id', type: 'number', description: 'Sharh ID raqami' })
@@ -40,6 +43,7 @@ export class ReviewsController {
     return this.reviewsService.findOne(+id);
   }
 
+  @UseGuards(UserAccessTokenGuard, SelfGuard)
   @Patch(':id')
   @ApiOperation({ summary: "ID bo'yicha sharhni yangilash" })
   @ApiParam({
@@ -52,6 +56,7 @@ export class ReviewsController {
     return this.reviewsService.update(+id, updateReviewDto);
   }
 
+  @UseGuards(UserAccessTokenGuard, SelfGuard)
   @Delete(':id')
   @ApiOperation({ summary: "ID bo'yicha sharhni o'chirish" })
   @ApiParam({

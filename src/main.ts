@@ -3,10 +3,16 @@ import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import * as cookieParser from 'cookie-parser';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { ValidationPipe } from '@nestjs/common';
+import { WinstonModule } from 'nest-winston';
+import { winstonConfig } from './common/logging/winston.logging';
+import { AllExceptionsFilter } from './common/errors/error.handling';
 
 async function start() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    logger: WinstonModule.createLogger(winstonConfig),
+  });
+  app.useGlobalFilters(new AllExceptionsFilter())
+
   app.use(cookieParser());
   app.setGlobalPrefix('api');
   const configSwagger = new DocumentBuilder()

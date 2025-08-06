@@ -1,4 +1,4 @@
-import { IsInt, IsPositive } from 'class-validator';
+import { IsInt, IsPositive, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateCourseCategoryDto {
@@ -12,10 +12,9 @@ export class CreateCourseCategoryDto {
   courseId: number;
 
   @ApiProperty({
-    example: 3,
-    description: "Kategoriya ID raqami. Bu mavjud kategoriya bo'lishi kerak.",
+    example: 'Shirinliklar',
+    description: "Bu yerda kategoriya nomi bo'lishi kerak.",
   })
-  @IsInt({ message: "categoryId butun son bo'lishi kerak" })
-  @IsPositive({ message: "categoryId musbat son bo'lishi kerak." })
-  categoryId: number;
+  @IsString({ message: "category nomi bo'lishi kerak" })
+  category: string;
 }

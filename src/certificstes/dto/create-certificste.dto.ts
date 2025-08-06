@@ -34,7 +34,7 @@ export class CreateCertificsteDto {
     {},
     { message: "issued_at ISO formatdagi sana bo'lishi kerak." },
   )
-  issued_at: string;
+  issued_at?: string;
 
   @ApiProperty({
     example: true,

@@ -9,9 +9,9 @@ import { CreateUserDto, UpdateUserDto } from './dto';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(private readonly prismaService: PrismaService) { }
   async create(createUserDto: CreateUserDto) {
-    const { full_name, email, phone, password, birth_date, role,  confirm_password } =
+    const { full_name, email, phone, password, birth_date, role, confirm_password } =
       createUserDto;
     if (password !== confirm_password) {
       throw new BadRequestException('Passwords not match');
@@ -60,5 +60,12 @@ export class UsersService {
     }
     await this.prismaService.user.delete({ where: { id } });
     return 'User deleted!';
+  }
+
+  async activateUser(id: number) {
+    return this.prismaService.user.update({
+      where: { id },
+      data: { is_active: true, activation_link: null },
+    });
   }
 }

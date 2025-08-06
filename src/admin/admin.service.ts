@@ -20,6 +20,7 @@ export class AdminService {
         email,
         phone,
         hashedPassword,
+        
       },
     });
   }
@@ -54,5 +55,12 @@ export class AdminService {
     }
     await this.prismaService.admin.delete({ where: { id } });
     return 'Admin deleted!';
+  }
+
+  async activateAdmin(id: number) {
+    return this.prismaService.admin.update({
+      where: { id },
+      data: { is_active: true, activation_link: null },
+    });
   }
 }

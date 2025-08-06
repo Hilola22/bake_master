@@ -6,18 +6,21 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { PurchasesService } from './purchases.service';
 import { CreatePurchaseDto } from './dto/create-purchase.dto';
 import { UpdatePurchaseDto } from './dto/update-purchase.dto';
 
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
+import { SelfGuard, UserAccessTokenGuard } from '../common/guards';
 
 @ApiTags('Sotib olishlar')
 @Controller('purchases')
 export class PurchasesController {
   constructor(private readonly purchasesService: PurchasesService) {}
 
+  @UseGuards(UserAccessTokenGuard)
   @Post()
   @ApiOperation({ summary: 'Yangi sotib olish yaratish' })
   @ApiResponse({
@@ -28,6 +31,7 @@ export class PurchasesController {
     return this.purchasesService.create(createPurchaseDto);
   }
 
+  @UseGuards(UserAccessTokenGuard)
   @Get()
   @ApiOperation({ summary: 'Barcha sotib olishlarni olish' })
   @ApiResponse({ status: 200, description: 'Barcha sotib olishlar qaytarildi' })
@@ -35,6 +39,7 @@ export class PurchasesController {
     return this.purchasesService.findAll();
   }
 
+  @UseGuards(UserAccessTokenGuard, SelfGuard)
   @Get(':id')
   @ApiOperation({ summary: "ID bo'yicha sotib olishni olish" })
   @ApiParam({
@@ -47,6 +52,7 @@ export class PurchasesController {
     return this.purchasesService.findOne(+id);
   }
 
+  @UseGuards(UserAccessTokenGuard, SelfGuard)
   @Patch(':id')
   @ApiOperation({ summary: "ID bo'yicha sotib olishni yangilash" })
   @ApiParam({
@@ -65,6 +71,7 @@ export class PurchasesController {
     return this.purchasesService.update(+id, updatePurchaseDto);
   }
 
+  @UseGuards(UserAccessTokenGuard, SelfGuard)
   @Delete(':id')
   @ApiOperation({ summary: "ID bo'yicha sotib olishni o'chirish" })
   @ApiParam({

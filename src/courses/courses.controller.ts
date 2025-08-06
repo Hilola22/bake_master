@@ -6,17 +6,20 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { CoursesService } from './courses.service';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { InstructorAccessTokenGuard, SelfGuard } from '../common/guards';
 
 @ApiTags('Kurslar')
 @Controller('courses')
 export class CoursesController {
   constructor(private readonly coursesService: CoursesService) {}
 
+  @UseGuards(InstructorAccessTokenGuard)
   @Post()
   @ApiOperation({ summary: 'Yangi kurs yaratish' })
   @ApiResponse({ status: 201, description: 'Kurs muvaffaqiyatli yaratildi.' })
@@ -31,6 +34,7 @@ export class CoursesController {
     return this.coursesService.findAll();
   }
 
+  @UseGuards(InstructorAccessTokenGuard, SelfGuard)
   @Get(':id')
   @ApiOperation({ summary: 'ID orqali kursni olish' })
   @ApiResponse({ status: 200, description: 'Kurs topildi.' })
@@ -38,6 +42,7 @@ export class CoursesController {
     return this.coursesService.findOne(+id);
   }
 
+  @UseGuards(InstructorAccessTokenGuard, SelfGuard)
   @Patch(':id')
   @ApiOperation({ summary: 'Kursni yangilash' })
   @ApiResponse({ status: 200, description: 'Kurs muvaffaqiyatli yangilandi.' })
@@ -45,6 +50,7 @@ export class CoursesController {
     return this.coursesService.update(+id, updateCourseDto);
   }
 
+  @UseGuards(InstructorAccessTokenGuard, SelfGuard)
   @Delete(':id')
   @ApiOperation({ summary: "Kursni o'chirish" })
   @ApiResponse({ status: 200, description: "Kurs muvaffaqiyatli o'chirildi." })

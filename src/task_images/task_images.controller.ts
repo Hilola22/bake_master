@@ -6,18 +6,21 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { TaskImagesService } from './task_images.service';
 import { CreateTaskImageDto } from './dto/create-task_image.dto';
 import { UpdateTaskImageDto } from './dto/update-task_image.dto';
+import { SelfGuard, UserAccessTokenGuard } from '../common/guards';
 
 @ApiTags('Vazifa rasmlari')
 @Controller('task-images')
 export class TaskImagesController {
   constructor(private readonly taskImagesService: TaskImagesService) {}
 
+  @UseGuards(UserAccessTokenGuard)
   @Post()
   @ApiOperation({ summary: 'Yangi vazifa rasmi yaratish' })
   @ApiResponse({
@@ -38,6 +41,7 @@ export class TaskImagesController {
     return this.taskImagesService.findAll();
   }
 
+  @UseGuards(UserAccessTokenGuard, SelfGuard)
   @Get(':id')
   @ApiOperation({ summary: "ID bo'yicha vazifa rasmini olish" })
   @ApiParam({
@@ -50,6 +54,7 @@ export class TaskImagesController {
     return this.taskImagesService.findOne(+id);
   }
 
+  @UseGuards(UserAccessTokenGuard, SelfGuard)
   @Patch(':id')
   @ApiOperation({ summary: "ID bo'yicha vazifa rasmini yangilash" })
   @ApiParam({
@@ -68,6 +73,7 @@ export class TaskImagesController {
     return this.taskImagesService.update(+id, updateTaskImageDto);
   }
 
+  @UseGuards(UserAccessTokenGuard, SelfGuard)
   @Delete(':id')
   @ApiOperation({ summary: "ID bo'yicha vazifa rasmini o'chirish" })
   @ApiParam({

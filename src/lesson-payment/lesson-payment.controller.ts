@@ -6,12 +6,14 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { LessonPaymentService } from './lesson-payment.service';
 import { CreateLessonsPaymentDto } from './dto/create-lesson-payment.dto';
 import { UpdateLessonPaymentDto } from './dto/update-lesson-payment.dto';
 
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
+import { InstructorAdminAccessTokenGuard, SelfGuard, UserAccessTokenGuard } from '../common/guards';
 
 @ApiTags("Dars to'lovlari")
 @Controller('lesson-payment')
@@ -28,6 +30,7 @@ export class LessonPaymentController {
     return this.lessonPaymentService.create(createLessonPaymentDto);
   }
 
+  @UseGuards(InstructorAdminAccessTokenGuard)
   @Get()
   @ApiOperation({ summary: "Barcha dars to'lovlarini olish" })
   @ApiResponse({
@@ -38,6 +41,7 @@ export class LessonPaymentController {
     return this.lessonPaymentService.findAll();
   }
 
+  @UseGuards(UserAccessTokenGuard, SelfGuard)
   @Get(':id')
   @ApiOperation({ summary: "ID bo'yicha dars to'lovini olish" })
   @ApiParam({
@@ -50,6 +54,7 @@ export class LessonPaymentController {
     return this.lessonPaymentService.findOne(+id);
   }
 
+  @UseGuards(InstructorAdminAccessTokenGuard, SelfGuard)
   @Patch(':id')
   @ApiOperation({ summary: "ID bo'yicha dars to'lovini yangilash" })
   @ApiParam({
@@ -68,6 +73,7 @@ export class LessonPaymentController {
     return this.lessonPaymentService.update(+id, updateLessonPaymentDto);
   }
 
+  @UseGuards(InstructorAdminAccessTokenGuard, SelfGuard)
   @Delete(':id')
   @ApiOperation({ summary: "ID bo'yicha dars to'lovini o'chirish" })
   @ApiParam({

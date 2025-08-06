@@ -4,7 +4,7 @@ import { Type } from 'class-transformer';
 
 export class CreateCourseContentDto {
   @ApiProperty({
-    example: 'JavaScript Introduction',
+    example: 'Pishirish uchun kirish qism',
     description: "Bo'lim sarlavhasi",
   })
   @IsString()
@@ -12,7 +12,7 @@ export class CreateCourseContentDto {
   title: string;
 
   @ApiProperty({
-    example: 'https://example.com/video.mp4',
+    example: 'https://example.com/cooking-intro-video.mp4',
     description: 'Video manzili (URL)',
   })
   @IsString()
@@ -26,7 +26,7 @@ export class CreateCourseContentDto {
   order: number;
 
   @ApiProperty({
-    example: 'Create a simple function in JavaScript',
+    example: 'Oddiy non pishirish uchun retseptni yaratish',
     description: 'Vazifa matni',
   })
   @IsString()
@@ -34,14 +34,17 @@ export class CreateCourseContentDto {
   task: string;
 
   @ApiProperty({
-    example: 'Sugar, Flour, Eggs',
+    example: 'Un, Suv, Tuz, Xamirturush',
     description: "Kerakli mahsulotlar ro'yxati",
   })
   @IsString()
   @IsNotEmpty()
   ingredients: string;
 
-  @ApiProperty({ example: 'grams, pieces', description: "O'lchov birliklari" })
+  @ApiProperty({
+    example: 'gramm, choy qoshiq',
+    description: "O'lchov birliklari",
+  })
   @IsString()
   @IsNotEmpty()
   measurement: string;

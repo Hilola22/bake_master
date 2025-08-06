@@ -3,4 +3,5 @@ export type JwtPayloadAdmin = {
   email: string;
   is_active: boolean;
   is_creator: boolean;
+  role: 'ADMIN' | 'SUPERADMIN';
 };

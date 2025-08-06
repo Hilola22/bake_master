@@ -12,17 +12,14 @@ export class CourseCategoryService {
   constructor(private readonly prismaService: PrismaService) {}
 
   async create(createCourseCategoryDto: CreateCourseCategoryDto) {
-    const { courseId, categoryId } = createCourseCategoryDto;
+    const { courseId, category } = createCourseCategoryDto;
 
     const course = await this.prismaService.courses.findUnique({
       where: { id: courseId },
-    });courseId
-    const category = await this.prismaService.category.findUnique({
-      where: { id: categoryId },
     });
 
-    if (!course || !category) {
-      throw new BadRequestException('Course or category not found');
+    if (!course) {
+      throw new BadRequestException('Course not found');
     }
 
     return this.prismaService.courseCategory.create({
@@ -39,12 +36,6 @@ export class CourseCategoryService {
             title: true,
           },
         },
-        category: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
       },
     });
   }
@@ -57,12 +48,6 @@ export class CourseCategoryService {
           select: {
             id: true,
             title: true,
-          },
-        },
-        category: {
-          select: {
-            id: true,
-            name: true,
           },
         },
       },

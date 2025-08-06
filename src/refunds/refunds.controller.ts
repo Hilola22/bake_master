@@ -6,18 +6,21 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { RefundsService } from './refunds.service';
 import { CreateRefundDto } from './dto/create-refund.dto';
 import { UpdateRefundDto } from './dto/update-refund.dto';
 
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
+import { InstructorAdminAccessTokenGuard, SelfGuard } from '../common/guards';
 
 @ApiTags("To'lovni qaytarish")
 @Controller('refunds')
 export class RefundsController {
   constructor(private readonly refundsService: RefundsService) {}
 
+  @UseGuards(InstructorAdminAccessTokenGuard)
   @Post()
   @ApiOperation({ summary: 'Yangi qaytarish yaratish' })
   @ApiResponse({
@@ -28,6 +31,7 @@ export class RefundsController {
     return this.refundsService.create(createRefundDto);
   }
 
+  @UseGuards(InstructorAdminAccessTokenGuard)
   @Get()
   @ApiOperation({ summary: 'Barcha qaytarishlarni olish' })
   @ApiResponse({ status: 200, description: 'Barcha qaytarishlar qaytarildi' })
@@ -35,6 +39,7 @@ export class RefundsController {
     return this.refundsService.findAll();
   }
 
+  @UseGuards(InstructorAdminAccessTokenGuard, SelfGuard)
   @Get(':id')
   @ApiOperation({ summary: "ID bo'yicha qaytarishni olish" })
   @ApiParam({ name: 'id', type: 'number', description: 'Qaytarish ID raqami' })
@@ -43,6 +48,7 @@ export class RefundsController {
     return this.refundsService.findOne(+id);
   }
 
+  @UseGuards(InstructorAdminAccessTokenGuard, SelfGuard)
   @Patch(':id')
   @ApiOperation({ summary: "ID bo'yicha qaytarishni yangilash" })
   @ApiParam({
@@ -58,6 +64,7 @@ export class RefundsController {
     return this.refundsService.update(+id, updateRefundDto);
   }
 
+  @UseGuards(InstructorAdminAccessTokenGuard, SelfGuard)
   @Delete(':id')
   @ApiOperation({ summary: "ID bo'yicha qaytarishni o'chirish" })
   @ApiParam({

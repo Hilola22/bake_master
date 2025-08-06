@@ -9,10 +9,23 @@ import { UserAccessTokenStrategy } from '../common/strategies/user-access-token.
 import { AdminAccessTokenStrategy } from '../common/strategies/admin-access-token.strategy';
 import { RefrershTokenCookieStrategyAdmin } from '../common/strategies/refresh-token-cookie-admin.strategy';
 import { RefrershTokenCookieStrategyUser } from '../common/strategies/refresh-token-cookie.strategy';
+import { MailModule } from '../mail/mail.module';
 
 @Module({
-  imports: [PrismaModule, UsersModule, AdminModule, JwtModule.register({})],
-  providers: [AuthService, UserAccessTokenStrategy, AdminAccessTokenStrategy, RefrershTokenCookieStrategyAdmin, RefrershTokenCookieStrategyUser],
+  imports: [
+    PrismaModule,
+    UsersModule,
+    AdminModule,
+    JwtModule.register({}),
+    MailModule,
+  ],
+  providers: [
+    AuthService,
+    UserAccessTokenStrategy,
+    AdminAccessTokenStrategy,
+    RefrershTokenCookieStrategyAdmin,
+    RefrershTokenCookieStrategyUser,
+  ],
   controllers: [AuthController],
 })
 export class AuthModule {}

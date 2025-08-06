@@ -6,18 +6,21 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { OfflineLessonService } from './offline-lesson.service';
 import { CreateOfflineLessonDto } from './dto/create-offline-lesson.dto';
 import { UpdateOfflineLessonDto } from './dto/update-offline-lesson.dto';
 
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
+import { InstructorAccessTokenGuard, SelfGuard } from '../common/guards';
 
 @ApiTags('Oflayn darslar')
 @Controller('offline-lesson')
 export class OfflineLessonController {
   constructor(private readonly offlineLessonService: OfflineLessonService) {}
 
+  @UseGuards(InstructorAccessTokenGuard)
   @Post()
   @ApiOperation({ summary: 'Yangi oflayn dars yaratish' })
   @ApiResponse({
@@ -35,6 +38,7 @@ export class OfflineLessonController {
     return this.offlineLessonService.findAll();
   }
 
+  @UseGuards(InstructorAccessTokenGuard, SelfGuard)
   @Get(':id')
   @ApiOperation({ summary: "ID bo'yicha oflayn darsni olish" })
   @ApiParam({
@@ -47,6 +51,7 @@ export class OfflineLessonController {
     return this.offlineLessonService.findOne(+id);
   }
 
+  @UseGuards(InstructorAccessTokenGuard, SelfGuard)
   @Patch(':id')
   @ApiOperation({ summary: "ID bo'yicha oflayn darsni yangilash" })
   @ApiParam({
@@ -65,6 +70,7 @@ export class OfflineLessonController {
     return this.offlineLessonService.update(+id, updateOfflineLessonDto);
   }
 
+  @UseGuards(InstructorAccessTokenGuard, SelfGuard)
   @Delete(':id')
   @ApiOperation({ summary: "ID bo'yicha oflayn darsni o'chirish" })
   @ApiParam({

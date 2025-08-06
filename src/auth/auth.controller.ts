@@ -5,6 +5,7 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  Query,
   Req,
   Res,
   UseGuards,
@@ -22,6 +23,8 @@ import {
   UserAccessTokenGuard,
   UserRefreshTokenGuard,
 } from '../common/guards';
+import { RoleGuard } from '../common/guards/role.guard';
+import { Roles } from '../common/decorators/roles.decorator';
 
 declare module 'express' {
   interface Request {
@@ -128,7 +131,7 @@ export class AuthController {
     @GetCurrentUser('refreshToken') refreshToken: string,
     @Res({ passthrough: true }) res: Response,
   ): Promise<ResponseFieldsAdmin> {
-    return this.authService.refreshAdmin(adminId, refreshToken, res);
+    return this.authService.refreshTokensAdmin(adminId, refreshToken, res);
   }
 
   @UseGuards(AdminRefreshTokenGuard)
@@ -158,6 +161,14 @@ export class AuthController {
       throw new BadRequestException('Email is required');
     }
     return this.authService.forgotPasswordAdmin(email);
+  }
+
+  @Post('reset-password-admin')
+  async resetPasswordAdminHandler(
+    @Query('token') token: string,
+    @Body('newPassword') newPassword: string,
+  ) {
+    return this.authService.resetPasswordAdmin(token, newPassword);
   }
 
   @UseGuards(AdminAccessTokenGuard)

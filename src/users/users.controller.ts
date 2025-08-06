@@ -7,11 +7,13 @@ import {
   Param,
   Delete,
   UseGuards,
+  NotFoundException,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
+import { AdminAccessTokenGuard, SelfGuard, SuperAdminAccessTokenGuard, UserAccessTokenGuard } from '../common/guards';
 
 @ApiTags('Foydalanuvchilar')
 @Controller('users')
@@ -29,6 +31,17 @@ export class UsersController {
     return this.usersService.create(createUserDto);
   }
 
+  @Get('activate/:code')
+  async activate(@Param('code') code: string) {
+    const user = await this.usersService.findUserByActivationLink(code);
+    if (!user) {
+      throw new NotFoundException('Activation code not found');
+    }
+
+    await this.usersService.activateUser(user.id);
+    return { message: 'User activated' };
+  }
+  @UseGuards(AdminAccessTokenGuard)
   @Get()
   @ApiOperation({ summary: 'Barcha foydalanuvchilarni olish' })
   @ApiResponse({ status: 200, description: "Foydalanuvchilar ro'yxati." })
@@ -36,6 +49,7 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
+  @UseGuards(UserAccessTokenGuard, SelfGuard)
   @Get(':id')
   @ApiOperation({ summary: 'ID orqali foydalanuvchini olish' })
   @ApiParam({ name: 'id', type: Number })
@@ -45,6 +59,7 @@ export class UsersController {
     return this.usersService.findOne(+id);
   }
 
+  @UseGuards(UserAccessTokenGuard, SelfGuard)
   @Patch(':id')
   @ApiOperation({ summary: 'Foydalanuvchini yangilash' })
   @ApiParam({ name: 'id', type: Number })
@@ -54,6 +69,7 @@ export class UsersController {
     return this.usersService.update(+id, updateUserDto);
   }
 
+  @UseGuards(UserAccessTokenGuard, SelfGuard)
   @Delete(':id')
   @ApiOperation({ summary: "Foydalanuvchini o'chirish" })
   @ApiParam({ name: 'id', type: Number })

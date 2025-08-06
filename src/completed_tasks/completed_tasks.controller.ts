@@ -6,17 +6,21 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { CompletedTasksService } from './completed_tasks.service';
 import { CreateCompletedTaskDto } from './dto/create-completed_task.dto';
 import { UpdateCompletedTaskDto } from './dto/update-completed_task.dto';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { InstructorAccessTokenGuard, InstructorAdminAccessTokenGuard, SelfGuard, UserAccessTokenGuard } from '../common/guards';
+import { InstructorOrInstructorAdminGuard } from '../common/guards/InstructorOrInstructorAdmin.guard';
 
 @ApiTags('Bajariladigan vazifalar')
 @Controller('completed-tasks')
 export class CompletedTasksController {
   constructor(private readonly completedTasksService: CompletedTasksService) {}
 
+  @UseGuards(InstructorAdminAccessTokenGuard)
   @Post()
   @ApiOperation({ summary: 'Yangi bajarilgan topshiriq yaratish' })
   @ApiResponse({
@@ -27,13 +31,14 @@ export class CompletedTasksController {
     return this.completedTasksService.create(createCompletedTaskDto);
   }
 
+  @UseGuards(InstructorAdminAccessTokenGuard)
   @Get()
   @ApiOperation({ summary: 'Barcha bajarilgan topshiriqlarni olish' })
   @ApiResponse({ status: 200, description: "Barcha topshiriqlar ro'yxati" })
   findAll() {
     return this.completedTasksService.findAll();
   }
-
+  @UseGuards(UserAccessTokenGuard, SelfGuard)
   @Get(':id')
   @ApiOperation({ summary: 'ID orqali bajarilgan topshiriqni olish' })
   @ApiResponse({ status: 200, description: 'Topilgan topshiriq' })
@@ -41,6 +46,7 @@ export class CompletedTasksController {
     return this.completedTasksService.findOne(+id);
   }
 
+  @UseGuards(UserAccessTokenGuard, SelfGuard)
   @Patch(':id')
   @ApiOperation({ summary: 'ID orqali bajarilgan topshiriqni tahrirlash' })
   @ApiResponse({ status: 200, description: 'Topshiriq yangilandi' })
@@ -51,6 +57,7 @@ export class CompletedTasksController {
     return this.completedTasksService.update(+id, updateCompletedTaskDto);
   }
 
+  @UseGuards(InstructorAccessTokenGuard, SelfGuard)
   @Delete(':id')
   @ApiOperation({ summary: "ID orqali bajarilgan topshiriqni o'chirish" })
   @ApiResponse({ status: 200, description: "Topshiriq o'chirildi" })

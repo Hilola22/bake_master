@@ -109,22 +109,13 @@ model Region {
 model Districts {
   id             Int             @id @default(autoincrement())
   name           String
-  regionId       Int
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
   region         Region          @relation(fields: [regionId], references: [id])
-  regionsId      Int
+  regionId      Int
   offline_lesson OfflineLesson[]
 
   @@map("districts")
-}
-
-model Category {
-  id              Int              @id @default(autoincrement())
-  name            String           @unique
-  course_category CourseCategory[]
-
-  @@map("category")
 }
 
 model Courses {
@@ -154,8 +145,7 @@ model CourseCategory {
   id         Int      @id @default(autoincrement())
   courses    Courses  @relation(fields: [courseId], references: [id])
   courseId   Int
-  category   Category @relation(fields: [categoryId], references: [id])
-  categoryId Int
+  category   String
 
   @@map("course_category")
 }
@@ -164,7 +154,7 @@ model Certificates {
   id              Int      @id @default(autoincrement())
   is_completed    Boolean  @default(false)
   certificate_url String
-  issued_at       DateTime @default(now())
+  issued_at       DateTime? @default(now())
   is_fully_paid   Boolean  @default(false)
   user            User     @relation(fields: [userId], references: [id])
   userId          Int

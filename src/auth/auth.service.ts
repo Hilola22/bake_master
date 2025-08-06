@@ -4,6 +4,7 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
+  ServiceUnavailableException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
@@ -11,7 +12,7 @@ import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto, SignInUserDto } from '../users/dto';
 import { UsersService } from '../users/users.service';
 import { Response } from 'express';
-import { Admin, User } from '../../generated/prisma';
+import { Admin, Role, User } from '../../generated/prisma';
 import * as bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
 import { addMinutes } from 'date-fns';
@@ -20,6 +21,8 @@ import { CreateAdminDto, SignInAdminDto } from '../admin/dto';
 import { AdminService } from '../admin/admin.service';
 import { ResponseFieldsAdmin } from '../common/types/response.type-admin';
 import { JwtPayloadAdmin } from '../common/types/jwt-payload-admin.type';
+import { MailService } from '../mail/mail.service';
+import { use } from 'passport';
 
 @Injectable()
 export class AuthService {
@@ -28,6 +31,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly usersService: UsersService,
     private readonly adminService: AdminService,
+    private readonly mailService: MailService,
   ) {}
   private async generateTokens(user: User): Promise<Tokens> {
     const payload: JwtPayload = {
@@ -87,8 +91,15 @@ export class AuthService {
     }
 
     const newUser = await this.usersService.create(createUserDto);
+    try {
+      await this.mailService.sendMail(newUser);
+    } catch (error) {
+      console.log(error);
+      throw new ServiceUnavailableException('Error sending message!');
+    }
     return {
-      message: 'New user created!',
+      message:
+        "New user created! You're registered! Confirm your email to activate your account!",
       userId: newUser.id,
     };
   }
@@ -122,7 +133,12 @@ export class AuthService {
       maxAge: +process.env.COOKIE_TIME!,
       httpOnly: true,
     });
-    return { message: 'User signed in', userId: user.id, accessToken };
+    return {
+      message: 'User signed in',
+      userId: user.id,
+      accessToken,
+      role: user.role,
+    };
   }
 
   async signoutUser(userId: number, res: Response): Promise<boolean> {
@@ -175,6 +191,7 @@ export class AuthService {
       message: 'Tokenlar yangilandi!',
       userId: user.id,
       accessToken: tokens.accessToken,
+      role: user.role,
     };
   }
 
@@ -263,11 +280,13 @@ export class AuthService {
 
   //------------------------ADMIN---------------------------------------//
   private async generateTokensAdmin(admin: Admin): Promise<Tokens> {
+    const role = admin.is_creator ? 'SUPERADMIN' : 'ADMIN';
     const payload: JwtPayloadAdmin = {
       id: admin.id,
       email: admin.email,
       is_creator: admin.is_creator,
       is_active: admin.is_active,
+      role: role,
     };
 
     const accessTokenKey = admin.is_creator
@@ -305,8 +324,15 @@ export class AuthService {
     }
 
     const newAdmin = await this.adminService.create(createAdminDto);
+    try {
+      await this.mailService.sendMailAdmin(newAdmin);
+    } catch (error) {
+      console.log(error);
+      throw new ServiceUnavailableException('Error sending message!');
+    }
     return {
-      message: 'New admin created!',
+      message:
+        "New admin added! You're registered! Confirm your email to activate your account!",
       adminId: newAdmin.id,
     };
   }
@@ -365,7 +391,7 @@ export class AuthService {
     return true;
   }
 
-  async refreshAdmin(
+  async refreshTokensAdmin(
     adminId: number,
     refreshToken: string,
     res: Response,
@@ -383,7 +409,7 @@ export class AuthService {
     if (!rtMatches) throw new NotFoundException('Access Denied2');
     const tokens = await this.generateTokensAdmin(admin);
     const hashedRefreshToken = await bcrypt.hash(tokens.refreshToken, 7);
-    await this.prismaService.user.update({
+    await this.prismaService.admin.update({
       where: { id: admin.id },
       data: { hashedRefreshToken },
     });
@@ -397,6 +423,50 @@ export class AuthService {
       accessToken: tokens.accessToken,
     };
   }
+
+  // async refreshTokensAdmin(
+  //   adminId: number,
+  //   refreshToken: string,
+  //   res: Response,
+  // ): Promise<{ message: string; adminId: number; accessToken: string }> {
+  //   const admin = await this.prismaService.admin.findUnique({
+  //     where: { id: adminId },
+  //   });
+
+  //   if (!admin || !admin.hashedRefreshToken) {
+  //     throw new ForbiddenException('Access Denied: no token stored');
+  //   }
+
+  //   const rtMatches = await bcrypt.compare(
+  //     refreshToken,
+  //     admin.hashedRefreshToken,
+  //   );
+  //   if (!rtMatches) {
+  //     throw new NotFoundException('Access Denied: invalid token');
+  //   }
+
+  //   admin.is_creator ? 'superadmin' : 'admin';
+
+  //   const tokens = await this.generateTokensAdmin(admin);
+  //   const newHashedRT = await bcrypt.hash(tokens.refreshToken, 7);
+
+  //   await this.prismaService.admin.update({
+  //     where: { id: admin.id },
+  //     data: { hashedRefreshToken: newHashedRT },
+  //   });
+
+    
+  //   res.cookie('refreshToken', tokens.refreshToken, {
+  //     maxAge: +process.env.COOKIE_TIME!,
+  //     httpOnly: true,
+  //   });
+
+  //   return {
+  //     message: 'Tokens updated',
+  //     adminId: admin.id,
+  //     accessToken: tokens.accessToken,
+  //   };
+  // }
 
   async activateAdmin(activation_link: string, adminId: number) {
     const admin_id = await this.prismaService.admin.findUnique({
@@ -481,5 +551,33 @@ export class AuthService {
     });
 
     return { message: 'Password changed successfully' };
+  }
+
+  async resetPasswordAdmin(token: string, newPassword: string) {
+    const admin = await this.prismaService.admin.findFirst({
+      where: {
+        forgotPasswordToken: token,
+        forgotPasswordExpires: {
+          gt: new Date(),
+        },
+      },
+    });
+
+    if (!admin) {
+      throw new BadRequestException('Invalid or expired reset token');
+    }
+
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+    await this.prismaService.admin.update({
+      where: { id: admin.id },
+      data: {
+        hashedPassword: hashedNewPassword,
+        forgotPasswordToken: null,
+        forgotPasswordExpires: null,
+      },
+    });
+
+    return { message: 'Password has been reset successfully' };
   }
 }
