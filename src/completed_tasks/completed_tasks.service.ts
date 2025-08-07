@@ -51,11 +51,6 @@ export class CompletedTasksService {
         task_images: true,
       },
     });
-
-    if (!completedTask) {
-      throw new NotFoundException(`CompletedTask with id ${id} not found`);
-    }
-
     return completedTask;
   }
 

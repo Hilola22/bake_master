@@ -18,8 +18,6 @@ export class UserAccessTokenStrategy extends PassportStrategy(
   }
 
   validate(req: Request, payload: JwtPayload): JwtPayload {
-    console.log("request", req);
-    console.log("payload", payload);
     return payload;
   }
 }

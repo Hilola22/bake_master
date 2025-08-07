@@ -1,4 +1,3 @@
-// create-offline-lesson.dto.ts
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsString,
@@ -15,7 +14,7 @@ export class CreateOfflineLessonDto {
   @IsNotEmpty()
   title: string;
 
-  @ApiProperty({ example: 'Boshlang‘ich darajadagi Python kursi' })
+  @ApiProperty({ example: "Boshlang'ich darajadagi Python kursi"})
   @IsString()
   @IsNotEmpty()
   description: string;

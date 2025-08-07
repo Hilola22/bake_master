@@ -44,8 +44,4 @@ export class CreatePromocodeDto {
   @IsBoolean()
   @IsOptional()
   is_active?: boolean;
-
-  @ApiProperty({ example: 1 })
-  @IsInt()
-  paymentId: number;
 }

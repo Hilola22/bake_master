@@ -112,7 +112,7 @@ model Districts {
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
   region         Region          @relation(fields: [regionId], references: [id])
-  regionId      Int
+  regionId       Int
   offline_lesson OfflineLesson[]
 
   @@map("districts")
@@ -142,23 +142,23 @@ model Courses {
 }
 
 model CourseCategory {
-  id         Int      @id @default(autoincrement())
-  courses    Courses  @relation(fields: [courseId], references: [id])
-  courseId   Int
-  category   String
+  id       Int     @id @default(autoincrement())
+  courses  Courses @relation(fields: [courseId], references: [id])
+  courseId Int
+  category String
 
   @@map("course_category")
 }
 
 model Certificates {
-  id              Int      @id @default(autoincrement())
-  is_completed    Boolean  @default(false)
+  id              Int       @id @default(autoincrement())
+  is_completed    Boolean   @default(false)
   certificate_url String
   issued_at       DateTime? @default(now())
-  is_fully_paid   Boolean  @default(false)
-  user            User     @relation(fields: [userId], references: [id])
+  is_fully_paid   Boolean   @default(false)
+  user            User      @relation(fields: [userId], references: [id])
   userId          Int
-  courses         Courses  @relation(fields: [courseId], references: [id])
+  courses         Courses   @relation(fields: [courseId], references: [id])
   courseId        Int
 
   @@map("certificates")
@@ -260,8 +260,9 @@ model Payment {
   coursesId      Int
   user           User          @relation(fields: [userId], references: [id])
   userId         Int
-  promocodes     Promocodes[]
   refunds        Refunds[]
+  promocodes     Promocodes?   @relation(fields: [promocodesId], references: [id])
+  promocodesId   Int?
 
   @@map("payment")
 }
@@ -276,8 +277,7 @@ model Promocodes {
   valid_from      DateTime         @default(now())
   valid_to        DateTime         @default(now())
   is_active       Boolean          @default(false)
-  payment         Payment          @relation(fields: [paymentId], references: [id])
-  paymentId       Int
+  payment         Payment[]
   lessons_payment LessonsPayment[]
 
   @@map("promocodes")

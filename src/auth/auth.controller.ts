@@ -19,7 +19,9 @@ import { ResponseFieldsAdmin } from '../common/types/response.type-admin';
 import { GetCurrentUser, GetCurrentUserId } from '../common/decorators';
 import {
   AdminAccessTokenGuard,
+  AdminOrSuperadminAccessTokenGuard,
   AdminRefreshTokenGuard,
+  SuperAdminAccessTokenGuard,
   UserAccessTokenGuard,
   UserRefreshTokenGuard,
 } from '../common/guards';
@@ -69,7 +71,7 @@ export class AuthController {
   async signoutUser(
     @GetCurrentUserId() userId: number,
     @Res({ passthrough: true }) res: Response,
-  ): Promise<boolean> {
+  ): Promise<string> {
     return this.authService.signoutUser(userId, res);
   }
 
@@ -84,7 +86,7 @@ export class AuthController {
     return this.authService.activateUser(activationLink, userId);
   }
 
-  @Post('forgot-password')
+  @Post('forgot-password-user')
   async forgotPasswordUser(@Body('email') email: string) {
     if (!email) {
       throw new BadRequestException('Email is required');
@@ -93,7 +95,7 @@ export class AuthController {
   }
 
   @UseGuards(UserAccessTokenGuard)
-  @Post('change-password')
+  @Post('change-password-user')
   async changePasswordUser(
     @Req() req: Request,
     @Body('oldPassword') oldPassword: string,
@@ -110,7 +112,16 @@ export class AuthController {
     );
   }
 
+  @Post('reset-password-user')
+  async resetPasswordUser(
+    @Query('token') token: string,
+    @Body('newPassword') newPassword: string,
+  ) {
+    return this.authService.resetPasswordUser(token, newPassword);
+  }
+
   // ADMIN
+  @UseGuards(SuperAdminAccessTokenGuard)
   @Post('signup-admin')
   async signupAdmin(@Body() dto: CreateAdminDto) {
     return this.authService.signupAdmin(dto);
@@ -140,7 +151,7 @@ export class AuthController {
   async signoutAdmin(
     @GetCurrentUserId() adminId: number,
     @Res({ passthrough: true }) res: Response,
-  ): Promise<boolean> {
+  ): Promise<string> {
     return this.authService.signoutAdmin(adminId, res);
   }
 

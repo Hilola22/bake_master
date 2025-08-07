@@ -7,13 +7,14 @@ import {
   Param,
   Delete,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { PaymentService } from './payment.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
 
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
-import { InstructorAdminAccessTokenGuard, SelfGuard, UserAccessTokenGuard } from '../common/guards';
+import { InstructorAccessTokenGuard, InstructorAdminAccessTokenGuard, SelfGuard, UserAccessTokenGuard } from '../common/guards';
 
 @ApiTags("To'lovlar")
 @Controller('payment')
@@ -32,6 +33,30 @@ export class PaymentController {
   @ApiResponse({ status: 200, description: "Barcha to'lovlar qaytarildi" })
   findAll() {
     return this.paymentService.findAll();
+  }
+
+  @UseGuards(InstructorAccessTokenGuard)
+  @Get('revenue-courses')
+  getRevenueByCourses() {
+    return this.paymentService.getRevenueByCourses();
+  }
+
+  @UseGuards(InstructorAdminAccessTokenGuard)
+  @Get('status')
+  async getPaymentStatusStats() {
+    return this.paymentService.getPaymentStatusStats();
+  }
+
+  @UseGuards(InstructorAdminAccessTokenGuard)
+  @Post('promo-users')
+  async promoUsersCount(@Body('promocodeId') promocodeId: number) {
+    return this.paymentService.getPromoUserCount(promocodeId);
+  }
+
+  @UseGuards(InstructorAdminAccessTokenGuard)
+  @Post('by-status')
+  getPaymentsByStatus(@Body('status') status: string) {
+    return this.paymentService.getPaymentsByStatus(status);
   }
 
   @UseGuards(UserAccessTokenGuard, SelfGuard)

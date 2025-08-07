@@ -10,6 +10,8 @@ import { AdminAccessTokenStrategy } from '../common/strategies/admin-access-toke
 import { RefrershTokenCookieStrategyAdmin } from '../common/strategies/refresh-token-cookie-admin.strategy';
 import { RefrershTokenCookieStrategyUser } from '../common/strategies/refresh-token-cookie.strategy';
 import { MailModule } from '../mail/mail.module';
+import { AdminOrSuperadminAccessTokenStrategy } from '../common/strategies/admin-or-superadmin.strategy';
+
 
 @Module({
   imports: [
@@ -25,6 +27,7 @@ import { MailModule } from '../mail/mail.module';
     AdminAccessTokenStrategy,
     RefrershTokenCookieStrategyAdmin,
     RefrershTokenCookieStrategyUser,
+    AdminOrSuperadminAccessTokenStrategy,
   ],
   controllers: [AuthController],
 })

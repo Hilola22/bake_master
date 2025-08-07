@@ -141,7 +141,7 @@ export class AuthService {
     };
   }
 
-  async signoutUser(userId: number, res: Response): Promise<boolean> {
+  async signoutUser(userId: number, res: Response): Promise<string> {
     const user = await this.prismaService.user.updateMany({
       where: {
         id: userId,
@@ -158,7 +158,7 @@ export class AuthService {
       throw new ForbiddenException('Access Denied');
     }
     res.clearCookie('refreshToken');
-    return true;
+    return 'Tizimdan muvaffaqiyatli chiqdingiz.';
   }
 
   async refreshUser(
@@ -239,10 +239,8 @@ export class AuthService {
         forgotPasswordExpires: tokenExpiry,
       },
     });
-    const resetLink = `http://localhost:3030/auth/reset-password?token=${resetToken}`;
-    console.log('Reset link:', resetLink);
 
-    return { message: 'Password reset link sent to your email', resetLink };
+    return { message: 'Password reset link sent to your email' };
   }
 
   async changePasswordUser(
@@ -276,6 +274,34 @@ export class AuthService {
     });
 
     return { message: 'Password changed successfully' };
+  }
+
+  async resetPasswordUser(token: string, newPassword: string) {
+    const user = await this.prismaService.user.findFirst({
+      where: {
+        forgotPasswordToken: token,
+        forgotPasswordExpires: {
+          gt: new Date(),
+        },
+      },
+    });
+
+    if (!user) {
+      throw new BadRequestException('Invalid or expired reset token');
+    }
+
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+    await this.prismaService.user.update({
+      where: { id: user.id },
+      data: {
+        hashedPassword: hashedNewPassword,
+        forgotPasswordToken: null,
+        forgotPasswordExpires: null,
+      },
+    });
+
+    return { message: 'Password has been reset successfully' };
   }
 
   //------------------------ADMIN---------------------------------------//
@@ -371,7 +397,7 @@ export class AuthService {
     return { message: 'Admin signed in', adminId: admin.id, accessToken };
   }
 
-  async signoutAdmin(adminId: number, res: Response): Promise<boolean> {
+  async signoutAdmin(adminId: number, res: Response): Promise<string> {
     const admin = await this.prismaService.admin.updateMany({
       where: {
         id: adminId,
@@ -388,85 +414,51 @@ export class AuthService {
       throw new ForbiddenException('Access Denied');
     }
     res.clearCookie('refreshToken');
-    return true;
+    return 'Tizimdan muvaffaqiyatli chiqdingiz.';
   }
 
   async refreshTokensAdmin(
     adminId: number,
     refreshToken: string,
     res: Response,
-  ): Promise<ResponseFieldsAdmin> {
+  ): Promise<{ message: string; adminId: number; accessToken: string }> {
     const admin = await this.prismaService.admin.findUnique({
       where: { id: adminId },
     });
 
-    if (!admin || !admin.hashedRefreshToken)
-      throw new ForbiddenException('Access Denied1');
+    if (!admin || !admin.hashedRefreshToken) {
+      throw new ForbiddenException('Access Denied: no token stored');
+    }
+
     const rtMatches = await bcrypt.compare(
       refreshToken,
       admin.hashedRefreshToken,
     );
-    if (!rtMatches) throw new NotFoundException('Access Denied2');
+    if (!rtMatches) {
+      throw new NotFoundException('Access Denied: invalid token');
+    }
+
+    admin.is_creator ? 'superadmin' : 'admin';
+
     const tokens = await this.generateTokensAdmin(admin);
-    const hashedRefreshToken = await bcrypt.hash(tokens.refreshToken, 7);
+    const newHashedRT = await bcrypt.hash(tokens.refreshToken, 7);
+
     await this.prismaService.admin.update({
       where: { id: admin.id },
-      data: { hashedRefreshToken },
+      data: { hashedRefreshToken: newHashedRT },
     });
-    res.cookie('refreshToken', refreshToken, {
+
+    res.cookie('refreshToken', tokens.refreshToken, {
       maxAge: +process.env.COOKIE_TIME!,
       httpOnly: true,
     });
+
     return {
-      message: 'Tokenlar yangilandi!',
+      message: 'Tokens updated',
       adminId: admin.id,
       accessToken: tokens.accessToken,
     };
   }
-
-  // async refreshTokensAdmin(
-  //   adminId: number,
-  //   refreshToken: string,
-  //   res: Response,
-  // ): Promise<{ message: string; adminId: number; accessToken: string }> {
-  //   const admin = await this.prismaService.admin.findUnique({
-  //     where: { id: adminId },
-  //   });
-
-  //   if (!admin || !admin.hashedRefreshToken) {
-  //     throw new ForbiddenException('Access Denied: no token stored');
-  //   }
-
-  //   const rtMatches = await bcrypt.compare(
-  //     refreshToken,
-  //     admin.hashedRefreshToken,
-  //   );
-  //   if (!rtMatches) {
-  //     throw new NotFoundException('Access Denied: invalid token');
-  //   }
-
-  //   admin.is_creator ? 'superadmin' : 'admin';
-
-  //   const tokens = await this.generateTokensAdmin(admin);
-  //   const newHashedRT = await bcrypt.hash(tokens.refreshToken, 7);
-
-  //   await this.prismaService.admin.update({
-  //     where: { id: admin.id },
-  //     data: { hashedRefreshToken: newHashedRT },
-  //   });
-
-    
-  //   res.cookie('refreshToken', tokens.refreshToken, {
-  //     maxAge: +process.env.COOKIE_TIME!,
-  //     httpOnly: true,
-  //   });
-
-  //   return {
-  //     message: 'Tokens updated',
-  //     adminId: admin.id,
-  //     accessToken: tokens.accessToken,
-  //   };
-  // }
 
   async activateAdmin(activation_link: string, adminId: number) {
     const admin_id = await this.prismaService.admin.findUnique({
@@ -514,10 +506,8 @@ export class AuthService {
         forgotPasswordExpires: tokenExpiry,
       },
     });
-    const resetLink = `http://localhost:3030/auth/reset-password-admin?token=${resetToken}`;
-    console.log('Reset link:', resetLink);
 
-    return { message: 'Password reset link sent to your email', resetLink };
+    return { message: 'Password reset link sent to your email' };
   }
 
   async changePasswordAdmin(

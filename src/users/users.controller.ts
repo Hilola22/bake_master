@@ -49,6 +49,11 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
+  @Get('top-buyers')
+  getTopBuyers() {
+    return this.usersService.getTopBuyers();
+  }
+
   @UseGuards(UserAccessTokenGuard, SelfGuard)
   @Get(':id')
   @ApiOperation({ summary: 'ID orqali foydalanuvchini olish' })

@@ -121,4 +121,22 @@ export class CoursesService {
     await this.prismaService.courses.delete({ where: { id } });
     return { message: 'Course deleted successfully' };
   }
+
+  async getBestSellingCourses() {
+    return this.prismaService.courses.findMany({
+      take: 1,
+      orderBy: {
+        purchases: {
+          _count: 'desc',
+        },
+      },
+      include: {
+        _count: {
+          select: {
+            purchases: true,
+          },
+        },
+      },
+    });
+  }
 }

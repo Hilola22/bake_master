@@ -15,8 +15,14 @@ describe('AppController', () => {
   });
 
   describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(appController.getHello()).toBe('Hello World!');
+    it('should return HTML containing "BakeMaster App"', () => {
+      const result = appController.getHello();
+      expect(result).toContain('BakeMaster App');
+    });
+
+    it('should contain at least one image tag', () => {
+      const result = appController.getHello();
+      expect(result).toMatch(/<img\s+src=.*?>/);
     });
   });
 });

@@ -34,6 +34,11 @@ export class CoursesController {
     return this.coursesService.findAll();
   }
 
+  @Get('best-sellers')
+  getBestSellingCourses() {
+    return this.coursesService.getBestSellingCourses();
+  }
+
   @UseGuards(InstructorAccessTokenGuard, SelfGuard)
   @Get(':id')
   @ApiOperation({ summary: 'ID orqali kursni olish' })

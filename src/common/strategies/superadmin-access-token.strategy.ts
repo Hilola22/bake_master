@@ -2,12 +2,13 @@ import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { PassportStrategy } from "@nestjs/passport";
 import { ExtractJwt, Strategy } from "passport-jwt";
+import { JwtPayloadAdmin } from "../types/jwt-payload-admin.type";
 
 @Injectable()
 export class JwtSuperAdminStrategy extends PassportStrategy(
   Strategy,
   'superadmin-access-jwt',
-  ) {
+) {
   constructor() {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -16,11 +17,8 @@ export class JwtSuperAdminStrategy extends PassportStrategy(
     });
   }
 
-  async validate(payload: any) {
+  async validate(req: Request, payload: JwtPayloadAdmin) {
     console.log('SuperAdmin payload:', payload);
-    if (payload.role !== 'SUPERADMIN') {
-      throw new UnauthorizedException('Not superadmin');
-    }
     return payload;
   }
 }

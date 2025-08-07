@@ -23,7 +23,7 @@ export class CreatePaymentDto {
 
   @ApiProperty({ example: '100000.00' })
   @IsNotEmpty()
-  amount: string; 
+  amount: string;
 
   @ApiProperty({ enum: PayStatus })
   @IsEnum(PayStatus)
@@ -46,4 +46,8 @@ export class CreatePaymentDto {
   @ApiProperty({ example: 1 })
   @IsInt()
   userId: number;
+
+  @ApiProperty({ example: 1 })
+  @IsInt()
+  promocodesId: number;
 }

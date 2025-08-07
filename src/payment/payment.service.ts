@@ -64,4 +64,48 @@ export class PaymentService {
 
     return await this.prisma.payment.delete({ where: { id } });
   }
+
+  async getPaymentsByStatus(status: any) {
+    return this.prisma.payment.findMany({
+      where: {
+        status: status,
+      },
+      include: {
+        user: true,
+        courses: true,
+      },
+    });
+  }
+
+  async getRevenueByCourses() {
+    return this.prisma.payment.groupBy({
+      by: ['coursesId'],
+      _sum: {
+        amount: true,
+      },
+      orderBy: {
+        _sum: {
+          amount: 'desc',
+        },
+      },
+    });
+  }
+
+  async getPaymentStatusStats() {
+    return this.prisma.payment.groupBy({
+      by: ['status'],
+      _count: { status: true },
+    });
+  }
+
+  async getPromoUserCount(promocodeId: number) {
+    const users = await this.prisma.payment.groupBy({
+      by: ['userId'],
+      where: {
+        promocodesId: promocodeId,
+      },
+    });
+
+    return `${users.length} ta foydalnuvchi shu promocodeddan foydalanib to'lov amalga oshirgan!`;
+  }
 }
