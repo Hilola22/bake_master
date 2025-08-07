@@ -12,7 +12,7 @@ import { ReviewsService } from './reviews.service';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
 
-import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBearerAuth } from '@nestjs/swagger';
 import { SelfGuard, UserAccessTokenGuard } from '../common/guards';
 
 @ApiTags('Sharhlar')
@@ -35,6 +35,7 @@ export class ReviewsController {
   }
 
   @UseGuards(UserAccessTokenGuard, SelfGuard)
+  @ApiBearerAuth('token')
   @Get(':id')
   @ApiOperation({ summary: "ID bo'yicha sharhni olish" })
   @ApiParam({ name: 'id', type: 'number', description: 'Sharh ID raqami' })
@@ -44,6 +45,7 @@ export class ReviewsController {
   }
 
   @UseGuards(UserAccessTokenGuard, SelfGuard)
+  @ApiBearerAuth('token')
   @Patch(':id')
   @ApiOperation({ summary: "ID bo'yicha sharhni yangilash" })
   @ApiParam({
@@ -57,6 +59,7 @@ export class ReviewsController {
   }
 
   @UseGuards(UserAccessTokenGuard, SelfGuard)
+  @ApiBearerAuth('token')
   @Delete(':id')
   @ApiOperation({ summary: "ID bo'yicha sharhni o'chirish" })
   @ApiParam({

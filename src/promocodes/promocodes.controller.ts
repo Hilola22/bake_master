@@ -12,7 +12,7 @@ import { PromocodesService } from './promocodes.service';
 import { CreatePromocodeDto } from './dto/create-promocode.dto';
 import { UpdatePromocodeDto } from './dto/update-promocode.dto';
 
-import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBearerAuth } from '@nestjs/swagger';
 import { InstructorAccessTokenGuard, SelfGuard } from '../common/guards';
 
 @ApiTags('Promo kodlar')
@@ -21,6 +21,7 @@ export class PromocodeController {
   constructor(private readonly promocodeService: PromocodesService) {}
 
   @UseGuards(InstructorAccessTokenGuard)
+  @ApiBearerAuth('token')
   @Post()
   @ApiOperation({ summary: 'Yangi promo kod yaratish' })
   @ApiResponse({
@@ -39,6 +40,7 @@ export class PromocodeController {
   }
 
   @UseGuards(InstructorAccessTokenGuard, SelfGuard)
+  @ApiBearerAuth('token')
   @Get(':id')
   @ApiOperation({ summary: "ID bo'yicha promo kodni olish" })
   @ApiParam({ name: 'id', type: 'number', description: 'Promo kod ID raqami' })
@@ -48,6 +50,7 @@ export class PromocodeController {
   }
 
   @UseGuards(InstructorAccessTokenGuard, SelfGuard)
+  @ApiBearerAuth('token')
   @Patch(':id')
   @ApiOperation({ summary: "ID bo'yicha promo kodni yangilash" })
   @ApiParam({
@@ -67,6 +70,7 @@ export class PromocodeController {
   }
 
   @UseGuards(InstructorAccessTokenGuard, SelfGuard)
+  @ApiBearerAuth('token')
   @Delete(':id')
   @ApiOperation({ summary: "ID bo'yicha promo kodni o'chirish" })
   @ApiParam({

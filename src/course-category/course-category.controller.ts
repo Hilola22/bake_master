@@ -8,7 +8,13 @@ import {
   Delete,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiParam,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { CourseCategoryService } from './course-category.service';
 import { CreateCourseCategoryDto } from './dto/create-course-category.dto';
 import { UpdateCourseCategoryDto } from './dto/update-course-category.dto';
@@ -20,6 +26,7 @@ export class CourseCategoryController {
   constructor(private readonly courseCategoryService: CourseCategoryService) {}
 
   @UseGuards(InstructorAdminAccessTokenGuard)
+  @ApiBearerAuth('token')
   @Post()
   @ApiOperation({ summary: 'Yangi kurs kategoriyasini yaratish' })
   @ApiResponse({
@@ -41,6 +48,7 @@ export class CourseCategoryController {
   }
 
   @UseGuards(InstructorAdminAccessTokenGuard, SelfGuard)
+  @ApiBearerAuth('token')
   @Get(':id')
   @ApiOperation({ summary: "ID bo'yicha bitta kurs kategoriyasini ko'rish" })
   @ApiParam({ name: 'id', description: 'Kurs kategoriyasining ID raqami' })
@@ -53,6 +61,7 @@ export class CourseCategoryController {
   }
 
   @UseGuards(InstructorAdminAccessTokenGuard, SelfGuard)
+  @ApiBearerAuth('token')
   @Patch(':id')
   @ApiOperation({ summary: "ID bo'yicha kurs kategoriyasini yangilash" })
   @ApiParam({ name: 'id', description: 'Kurs kategoriyasining ID raqam' })
@@ -68,6 +77,7 @@ export class CourseCategoryController {
   }
 
   @UseGuards(InstructorAdminAccessTokenGuard, SelfGuard)
+  @ApiBearerAuth('token')
   @Delete(':id')
   @ApiOperation({ summary: "ID bo'yicha kurs kategoriyasini o'chirish" })
   @ApiParam({ name: 'id', description: 'Kurs kategoriyasining ID raqami' })

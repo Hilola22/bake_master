@@ -11,7 +11,12 @@ import {
 import { CoursesService } from './courses.service';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { InstructorAccessTokenGuard, SelfGuard } from '../common/guards';
 
 @ApiTags('Kurslar')
@@ -20,6 +25,7 @@ export class CoursesController {
   constructor(private readonly coursesService: CoursesService) {}
 
   @UseGuards(InstructorAccessTokenGuard)
+  @ApiBearerAuth('token')
   @Post()
   @ApiOperation({ summary: 'Yangi kurs yaratish' })
   @ApiResponse({ status: 201, description: 'Kurs muvaffaqiyatli yaratildi.' })
@@ -40,6 +46,7 @@ export class CoursesController {
   }
 
   @UseGuards(InstructorAccessTokenGuard, SelfGuard)
+  @ApiBearerAuth('token')
   @Get(':id')
   @ApiOperation({ summary: 'ID orqali kursni olish' })
   @ApiResponse({ status: 200, description: 'Kurs topildi.' })
@@ -48,6 +55,7 @@ export class CoursesController {
   }
 
   @UseGuards(InstructorAccessTokenGuard, SelfGuard)
+  @ApiBearerAuth('token')
   @Patch(':id')
   @ApiOperation({ summary: 'Kursni yangilash' })
   @ApiResponse({ status: 200, description: 'Kurs muvaffaqiyatli yangilandi.' })
@@ -56,6 +64,7 @@ export class CoursesController {
   }
 
   @UseGuards(InstructorAccessTokenGuard, SelfGuard)
+  @ApiBearerAuth('token')
   @Delete(':id')
   @ApiOperation({ summary: "Kursni o'chirish" })
   @ApiResponse({ status: 200, description: "Kurs muvaffaqiyatli o'chirildi." })

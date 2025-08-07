@@ -12,7 +12,7 @@ import {
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBearerAuth } from '@nestjs/swagger';
 import { AdminAccessTokenGuard, SelfGuard, SuperAdminAccessTokenGuard, UserAccessTokenGuard } from '../common/guards';
 
 @ApiTags('Foydalanuvchilar')
@@ -42,6 +42,7 @@ export class UsersController {
     return { message: 'User activated' };
   }
   @UseGuards(AdminAccessTokenGuard)
+  @ApiBearerAuth('token')
   @Get()
   @ApiOperation({ summary: 'Barcha foydalanuvchilarni olish' })
   @ApiResponse({ status: 200, description: "Foydalanuvchilar ro'yxati." })
@@ -55,6 +56,7 @@ export class UsersController {
   }
 
   @UseGuards(UserAccessTokenGuard, SelfGuard)
+  @ApiBearerAuth('token')
   @Get(':id')
   @ApiOperation({ summary: 'ID orqali foydalanuvchini olish' })
   @ApiParam({ name: 'id', type: Number })
@@ -65,6 +67,7 @@ export class UsersController {
   }
 
   @UseGuards(UserAccessTokenGuard, SelfGuard)
+  @ApiBearerAuth('token')
   @Patch(':id')
   @ApiOperation({ summary: 'Foydalanuvchini yangilash' })
   @ApiParam({ name: 'id', type: Number })
@@ -75,6 +78,7 @@ export class UsersController {
   }
 
   @UseGuards(UserAccessTokenGuard, SelfGuard)
+  @ApiBearerAuth('token')
   @Delete(':id')
   @ApiOperation({ summary: "Foydalanuvchini o'chirish" })
   @ApiParam({ name: 'id', type: Number })

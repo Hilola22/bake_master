@@ -11,7 +11,12 @@ import {
 import { CourseContentsService } from './course-contents.service';
 import { CreateCourseContentDto } from './dto/create-course-content.dto';
 import { UpdateCourseContentDto } from './dto/update-course-content.dto';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { InstructorAccessTokenGuard, SelfGuard } from '../common/guards';
 
 @ApiTags('Kurs mazmunlari')
@@ -20,6 +25,7 @@ export class CourseContentsController {
   constructor(private readonly courseContentsService: CourseContentsService) {}
 
   @UseGuards(InstructorAccessTokenGuard)
+  @ApiBearerAuth('token')
   @Post()
   @ApiOperation({ summary: 'Yangi kurs kontentini yaratish' })
   @ApiResponse({
@@ -32,6 +38,7 @@ export class CourseContentsController {
   }
 
   @UseGuards(InstructorAccessTokenGuard)
+  @ApiBearerAuth('token')
   @Get()
   @ApiOperation({ summary: 'Barcha kurs kontentlarini olish' })
   @ApiResponse({ status: 200, description: "Barcha kontentlar ro'yxati." })
@@ -40,6 +47,7 @@ export class CourseContentsController {
   }
 
   @UseGuards(InstructorAccessTokenGuard, SelfGuard)
+  @ApiBearerAuth('token')
   @Get(':id')
   @ApiOperation({ summary: 'Bitta kurs kontentini olish' })
   @ApiResponse({ status: 200, description: 'Tanlangan kontent topildi.' })
@@ -49,6 +57,7 @@ export class CourseContentsController {
   }
 
   @UseGuards(InstructorAccessTokenGuard, SelfGuard)
+  @ApiBearerAuth('token')
   @Patch(':id')
   @ApiOperation({ summary: 'Kurs kontentini yangilash' })
   @ApiResponse({
@@ -67,6 +76,7 @@ export class CourseContentsController {
   }
 
   @UseGuards(InstructorAccessTokenGuard, SelfGuard)
+  @ApiBearerAuth('token')
   @Delete(':id')
   @ApiOperation({ summary: "Kurs kontentini o'chirish" })
   @ApiResponse({

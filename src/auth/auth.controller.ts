@@ -27,6 +27,7 @@ import {
 } from '../common/guards';
 import { RoleGuard } from '../common/guards/role.guard';
 import { Roles } from '../common/decorators/roles.decorator';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 declare module 'express' {
   interface Request {
@@ -37,6 +38,7 @@ declare module 'express' {
   }
 }
 
+@ApiBearerAuth('token')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -56,6 +58,7 @@ export class AuthController {
   }
 
   @UseGuards(UserRefreshTokenGuard)
+  @ApiBearerAuth('token')
   @Post('refresh')
   async refreshUser(
     @GetCurrentUserId() userId: number,
@@ -66,6 +69,7 @@ export class AuthController {
   }
 
   @UseGuards(UserRefreshTokenGuard)
+  @ApiBearerAuth('token')
   @Post('signout')
   @HttpCode(HttpStatus.OK)
   async signoutUser(
@@ -95,6 +99,7 @@ export class AuthController {
   }
 
   @UseGuards(UserAccessTokenGuard)
+  @ApiBearerAuth('token')
   @Post('change-password-user')
   async changePasswordUser(
     @Req() req: Request,
@@ -122,6 +127,7 @@ export class AuthController {
 
   // ADMIN
   @UseGuards(SuperAdminAccessTokenGuard)
+  @ApiBearerAuth('token')
   @Post('signup-admin')
   async signupAdmin(@Body() dto: CreateAdminDto) {
     return this.authService.signupAdmin(dto);
@@ -136,6 +142,7 @@ export class AuthController {
   }
 
   @UseGuards(AdminRefreshTokenGuard)
+  @ApiBearerAuth('token')
   @Post('refresh-admin')
   async refreshAdmin(
     @GetCurrentUserId() adminId: number,
@@ -146,6 +153,7 @@ export class AuthController {
   }
 
   @UseGuards(AdminRefreshTokenGuard)
+  @ApiBearerAuth('token')
   @Post('signout-admin')
   @HttpCode(HttpStatus.OK)
   async signoutAdmin(
@@ -183,6 +191,7 @@ export class AuthController {
   }
 
   @UseGuards(AdminAccessTokenGuard)
+  @ApiBearerAuth('token')
   @Post('change-password-admin')
   async changePasswordAdmin(
     @Req() req: Request,

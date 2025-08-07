@@ -8,7 +8,7 @@ import {
   Delete,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { DistrictsService } from './districts.service';
 import { CreateDistrictDto } from './dto/create-district.dto';
 import { UpdateDistrictDto } from './dto/update-district.dto';
@@ -20,6 +20,7 @@ export class DistrictsController {
   constructor(private readonly districtsService: DistrictsService) {}
 
   @UseGuards(AdminAccessTokenGuard)
+  @ApiBearerAuth('token')
   @Post()
   @ApiOperation({ summary: 'Yangi tuman yaratish' })
   @ApiResponse({ status: 201, description: 'Tuman muvaffaqiyatli yaratildi' })
@@ -44,6 +45,7 @@ export class DistrictsController {
   }
 
   @UseGuards(AdminAccessTokenGuard, SelfGuard)
+  @ApiBearerAuth('token')
   @Patch(':id')
   @ApiOperation({ summary: "ID orqali tuman ma'lumotlarini yangilash" })
   @ApiResponse({ status: 200, description: 'Tuman yangilandi' })
@@ -56,6 +58,7 @@ export class DistrictsController {
   }
 
   @UseGuards(AdminAccessTokenGuard, SelfGuard)
+  @ApiBearerAuth('token')
   @Delete(':id')
   @ApiOperation({ summary: "ID orqali tuman o'chirish" })
   @ApiResponse({ status: 200, description: "Tuman o'chirildi" })

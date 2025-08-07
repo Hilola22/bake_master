@@ -12,7 +12,7 @@ import { RefundsService } from './refunds.service';
 import { CreateRefundDto } from './dto/create-refund.dto';
 import { UpdateRefundDto } from './dto/update-refund.dto';
 
-import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBearerAuth } from '@nestjs/swagger';
 import { InstructorAdminAccessTokenGuard, SelfGuard } from '../common/guards';
 
 @ApiTags("To'lovni qaytarish")
@@ -21,6 +21,7 @@ export class RefundsController {
   constructor(private readonly refundsService: RefundsService) {}
 
   @UseGuards(InstructorAdminAccessTokenGuard)
+  @ApiBearerAuth('token')
   @Post()
   @ApiOperation({ summary: 'Yangi qaytarish yaratish' })
   @ApiResponse({
@@ -32,6 +33,7 @@ export class RefundsController {
   }
 
   @UseGuards(InstructorAdminAccessTokenGuard)
+  @ApiBearerAuth('token')
   @Get()
   @ApiOperation({ summary: 'Barcha qaytarishlarni olish' })
   @ApiResponse({ status: 200, description: 'Barcha qaytarishlar qaytarildi' })
@@ -40,6 +42,7 @@ export class RefundsController {
   }
 
   @UseGuards(InstructorAdminAccessTokenGuard, SelfGuard)
+  @ApiBearerAuth('token')
   @Get(':id')
   @ApiOperation({ summary: "ID bo'yicha qaytarishni olish" })
   @ApiParam({ name: 'id', type: 'number', description: 'Qaytarish ID raqami' })
@@ -49,6 +52,7 @@ export class RefundsController {
   }
 
   @UseGuards(InstructorAdminAccessTokenGuard, SelfGuard)
+  @ApiBearerAuth('token')
   @Patch(':id')
   @ApiOperation({ summary: "ID bo'yicha qaytarishni yangilash" })
   @ApiParam({
@@ -65,6 +69,7 @@ export class RefundsController {
   }
 
   @UseGuards(InstructorAdminAccessTokenGuard, SelfGuard)
+  @ApiBearerAuth('token')
   @Delete(':id')
   @ApiOperation({ summary: "ID bo'yicha qaytarishni o'chirish" })
   @ApiParam({

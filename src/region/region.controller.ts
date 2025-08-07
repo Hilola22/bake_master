@@ -11,7 +11,7 @@ import {
 import { RegionService } from './region.service';
 import { CreateRegionDto } from './dto/create-region.dto';
 import { UpdateRegionDto } from './dto/update-region.dto';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBearerAuth } from '@nestjs/swagger';
 import { AdminAccessTokenGuard, SelfGuard } from '../common/guards';
 
 @ApiTags('Viloyatlar')
@@ -20,6 +20,7 @@ export class RegionsController {
   constructor(private readonly regionService: RegionService) {}
 
   @UseGuards(AdminAccessTokenGuard)
+  @ApiBearerAuth('token')
   @Post()
   @ApiOperation({ summary: 'Yangi viloyat yaratish' })
   @ApiResponse({
@@ -41,6 +42,7 @@ export class RegionsController {
     return this.regionService.findAll();
   }
   @UseGuards(AdminAccessTokenGuard, SelfGuard)
+  @ApiBearerAuth('token')
   @Get(':id')
   @ApiOperation({ summary: 'ID orqali viloyatni olish (districtlar bilan)' })
   @ApiParam({ name: 'id', type: Number })
@@ -51,6 +53,7 @@ export class RegionsController {
   }
 
   @UseGuards(AdminAccessTokenGuard, SelfGuard)
+  @ApiBearerAuth('token')
   @Patch(':id')
   @ApiOperation({ summary: "Viloyat ma'lumotlarini yangilash" })
   @ApiParam({ name: 'id', type: Number })
@@ -64,6 +67,7 @@ export class RegionsController {
   }
 
   @UseGuards(AdminAccessTokenGuard, SelfGuard)
+  @ApiBearerAuth('token')
   @Delete(':id')
   @ApiOperation({ summary: "Viloyatni o'chirish" })
   @ApiParam({ name: 'id', type: Number })

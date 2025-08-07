@@ -13,8 +13,13 @@ import { PaymentService } from './payment.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
 
-import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
-import { InstructorAccessTokenGuard, InstructorAdminAccessTokenGuard, SelfGuard, UserAccessTokenGuard } from '../common/guards';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  InstructorAccessTokenGuard,
+  InstructorAdminAccessTokenGuard,
+  SelfGuard,
+  UserAccessTokenGuard,
+} from '../common/guards';
 
 @ApiTags("To'lovlar")
 @Controller('payment')
@@ -28,6 +33,7 @@ export class PaymentController {
     return this.paymentService.create(createPaymentDto);
   }
   @UseGuards(InstructorAdminAccessTokenGuard)
+  @ApiBearerAuth('token')
   @Get()
   @ApiOperation({ summary: "Barcha to'lovlarni olish" })
   @ApiResponse({ status: 200, description: "Barcha to'lovlar qaytarildi" })
@@ -36,30 +42,35 @@ export class PaymentController {
   }
 
   @UseGuards(InstructorAccessTokenGuard)
+  @ApiBearerAuth('token')
   @Get('revenue-courses')
   getRevenueByCourses() {
     return this.paymentService.getRevenueByCourses();
   }
 
   @UseGuards(InstructorAdminAccessTokenGuard)
+  @ApiBearerAuth('token')
   @Get('status')
   async getPaymentStatusStats() {
     return this.paymentService.getPaymentStatusStats();
   }
 
   @UseGuards(InstructorAdminAccessTokenGuard)
+  @ApiBearerAuth('token')
   @Post('promo-users')
   async promoUsersCount(@Body('promocodeId') promocodeId: number) {
     return this.paymentService.getPromoUserCount(promocodeId);
   }
 
   @UseGuards(InstructorAdminAccessTokenGuard)
+  @ApiBearerAuth('token')
   @Post('by-status')
   getPaymentsByStatus(@Body('status') status: string) {
     return this.paymentService.getPaymentsByStatus(status);
   }
 
   @UseGuards(UserAccessTokenGuard, SelfGuard)
+  @ApiBearerAuth('token')
   @Get(':id')
   @ApiOperation({ summary: "ID bo'yicha to'lovni olish" })
   @ApiParam({ name: 'id', type: 'number', description: "To'lovning ID raqami" })

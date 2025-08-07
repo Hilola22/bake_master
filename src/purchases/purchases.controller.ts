@@ -12,7 +12,7 @@ import { PurchasesService } from './purchases.service';
 import { CreatePurchaseDto } from './dto/create-purchase.dto';
 import { UpdatePurchaseDto } from './dto/update-purchase.dto';
 
-import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBearerAuth } from '@nestjs/swagger';
 import { SelfGuard, UserAccessTokenGuard } from '../common/guards';
 
 @ApiTags('Sotib olishlar')
@@ -21,6 +21,7 @@ export class PurchasesController {
   constructor(private readonly purchasesService: PurchasesService) {}
 
   @UseGuards(UserAccessTokenGuard)
+  @ApiBearerAuth('token')
   @Post()
   @ApiOperation({ summary: 'Yangi sotib olish yaratish' })
   @ApiResponse({
@@ -32,6 +33,7 @@ export class PurchasesController {
   }
 
   @UseGuards(UserAccessTokenGuard)
+  @ApiBearerAuth('token')
   @Get()
   @ApiOperation({ summary: 'Barcha sotib olishlarni olish' })
   @ApiResponse({ status: 200, description: 'Barcha sotib olishlar qaytarildi' })
@@ -40,6 +42,7 @@ export class PurchasesController {
   }
 
   @UseGuards(UserAccessTokenGuard, SelfGuard)
+  @ApiBearerAuth('token')
   @Get(':id')
   @ApiOperation({ summary: "ID bo'yicha sotib olishni olish" })
   @ApiParam({
@@ -53,6 +56,7 @@ export class PurchasesController {
   }
 
   @UseGuards(UserAccessTokenGuard, SelfGuard)
+  @ApiBearerAuth('token')
   @Patch(':id')
   @ApiOperation({ summary: "ID bo'yicha sotib olishni yangilash" })
   @ApiParam({
@@ -72,6 +76,7 @@ export class PurchasesController {
   }
 
   @UseGuards(UserAccessTokenGuard, SelfGuard)
+  @ApiBearerAuth('token')
   @Delete(':id')
   @ApiOperation({ summary: "ID bo'yicha sotib olishni o'chirish" })
   @ApiParam({

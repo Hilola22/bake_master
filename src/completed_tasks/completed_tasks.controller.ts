@@ -11,8 +11,18 @@ import {
 import { CompletedTasksService } from './completed_tasks.service';
 import { CreateCompletedTaskDto } from './dto/create-completed_task.dto';
 import { UpdateCompletedTaskDto } from './dto/update-completed_task.dto';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { InstructorAccessTokenGuard, InstructorAdminAccessTokenGuard, SelfGuard, UserAccessTokenGuard } from '../common/guards';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
+import {
+  InstructorAccessTokenGuard,
+  InstructorAdminAccessTokenGuard,
+  SelfGuard,
+  UserAccessTokenGuard,
+} from '../common/guards';
 import { InstructorOrInstructorAdminGuard } from '../common/guards/InstructorOrInstructorAdmin.guard';
 
 @ApiTags('Bajariladigan vazifalar')
@@ -21,6 +31,7 @@ export class CompletedTasksController {
   constructor(private readonly completedTasksService: CompletedTasksService) {}
 
   @UseGuards(InstructorAdminAccessTokenGuard)
+  @ApiBearerAuth('token')
   @Post()
   @ApiOperation({ summary: 'Yangi bajarilgan topshiriq yaratish' })
   @ApiResponse({
@@ -32,6 +43,7 @@ export class CompletedTasksController {
   }
 
   @UseGuards(InstructorAdminAccessTokenGuard)
+  @ApiBearerAuth('token')
   @Get()
   @ApiOperation({ summary: 'Barcha bajarilgan topshiriqlarni olish' })
   @ApiResponse({ status: 200, description: "Barcha topshiriqlar ro'yxati" })
@@ -39,6 +51,7 @@ export class CompletedTasksController {
     return this.completedTasksService.findAll();
   }
   @UseGuards(UserAccessTokenGuard, SelfGuard)
+  @ApiBearerAuth('token')
   @Get(':id')
   @ApiOperation({ summary: 'ID orqali bajarilgan topshiriqni olish' })
   @ApiResponse({ status: 200, description: 'Topilgan topshiriq' })
@@ -47,6 +60,7 @@ export class CompletedTasksController {
   }
 
   @UseGuards(UserAccessTokenGuard, SelfGuard)
+  @ApiBearerAuth('token')
   @Patch(':id')
   @ApiOperation({ summary: 'ID orqali bajarilgan topshiriqni tahrirlash' })
   @ApiResponse({ status: 200, description: 'Topshiriq yangilandi' })
@@ -58,6 +72,7 @@ export class CompletedTasksController {
   }
 
   @UseGuards(InstructorAccessTokenGuard, SelfGuard)
+  @ApiBearerAuth('token')
   @Delete(':id')
   @ApiOperation({ summary: "ID orqali bajarilgan topshiriqni o'chirish" })
   @ApiResponse({ status: 200, description: "Topshiriq o'chirildi" })

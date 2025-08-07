@@ -8,7 +8,7 @@ import {
   Delete,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { CertificstesService } from './certificstes.service';
 import { CreateCertificsteDto } from './dto/create-certificste.dto';
 import { UpdateCertificsteDto } from './dto/update-certificste.dto';
@@ -23,6 +23,7 @@ export class CertificstesController {
   constructor(private readonly certificstesService: CertificstesService) {}
 
   @Roles('INSTRUCTOR_ADMIN')
+  @ApiBearerAuth('token')
   @UseGuards(InstructorAdminAccessTokenGuard, RoleGuard)
   @Post()
   @ApiOperation({ summary: 'Yangi sertifikat yaratish' })
@@ -35,6 +36,7 @@ export class CertificstesController {
   }
 
   @Roles('INSTRUCTOR_ADMIN')
+  @ApiBearerAuth('token')
   @UseGuards(InstructorAdminAccessTokenGuard, RoleGuard)
   @Get()
   @ApiOperation({ summary: 'Barcha sertifikatlarni olish' })
@@ -44,6 +46,7 @@ export class CertificstesController {
   }
 
   @UseGuards(UserAccessTokenGuard, SelfGuard)
+  @ApiBearerAuth('token')
   @Get(':id')
   @ApiOperation({ summary: "ID bo'yicha sertifikat olish" })
   @ApiResponse({ status: 200, description: 'Sertifikat topildi' })
@@ -52,6 +55,7 @@ export class CertificstesController {
   }
 
   @UseGuards(InstructorAdminAccessTokenGuard, SelfGuard)
+  @ApiBearerAuth('token')
   @Patch(':id')
   @ApiOperation({ summary: "ID bo'yicha sertifikatni yangilash" })
   @ApiResponse({ status: 200, description: 'Sertifikat yangilandi' })
@@ -63,6 +67,7 @@ export class CertificstesController {
   }
 
   @UseGuards(InstructorAdminAccessTokenGuard, SelfGuard)
+  @ApiBearerAuth('token')
   @Delete(':id')
   @ApiOperation({ summary: "ID bo'yicha sertifikatni o'chirish" })
   @ApiResponse({ status: 200, description: "Sertifikat o'chirildi" })

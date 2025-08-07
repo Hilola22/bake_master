@@ -11,7 +11,7 @@ async function start() {
   const app = await NestFactory.create(AppModule, {
     logger: WinstonModule.createLogger(winstonConfig),
   });
-  app.useGlobalFilters(new AllExceptionsFilter())
+  app.useGlobalFilters(new AllExceptionsFilter());
 
   app.use(cookieParser());
   app.setGlobalPrefix('api');
@@ -19,6 +19,17 @@ async function start() {
     .setTitle('BakeMaster')
     .setDescription('Prismada BakeMaster loyihasi API hujjati')
     .setVersion('1.0')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'JWT',
+        description: 'Enter JWT token',
+        in: 'header',
+      },
+      'token',
+    )
     .addTag('BakeMaster')
     .build();
 

@@ -9,7 +9,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 
-import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBearerAuth } from '@nestjs/swagger';
 import { TaskImagesService } from './task_images.service';
 import { CreateTaskImageDto } from './dto/create-task_image.dto';
 import { UpdateTaskImageDto } from './dto/update-task_image.dto';
@@ -21,6 +21,7 @@ export class TaskImagesController {
   constructor(private readonly taskImagesService: TaskImagesService) {}
 
   @UseGuards(UserAccessTokenGuard)
+  @ApiBearerAuth('token')
   @Post()
   @ApiOperation({ summary: 'Yangi vazifa rasmi yaratish' })
   @ApiResponse({
@@ -42,6 +43,7 @@ export class TaskImagesController {
   }
 
   @UseGuards(UserAccessTokenGuard, SelfGuard)
+  @ApiBearerAuth('token')
   @Get(':id')
   @ApiOperation({ summary: "ID bo'yicha vazifa rasmini olish" })
   @ApiParam({
@@ -55,6 +57,7 @@ export class TaskImagesController {
   }
 
   @UseGuards(UserAccessTokenGuard, SelfGuard)
+  @ApiBearerAuth('token')
   @Patch(':id')
   @ApiOperation({ summary: "ID bo'yicha vazifa rasmini yangilash" })
   @ApiParam({
@@ -74,6 +77,7 @@ export class TaskImagesController {
   }
 
   @UseGuards(UserAccessTokenGuard, SelfGuard)
+  @ApiBearerAuth('token')
   @Delete(':id')
   @ApiOperation({ summary: "ID bo'yicha vazifa rasmini o'chirish" })
   @ApiParam({
